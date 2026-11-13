@@ -1,0 +1,34 @@
+# Datasets, exported crops and trained models (large, never committed)
+data/*
+!data/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.joblib
+
+# Experiment outputs; results cited in the report go in experiments/results/
+experiments/runs/
+experiments/models/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# LaTeX build files
+report/*.aux
+report/*.log
+report/*.out
+report/*.bbl
+report/*.blg
+report/*.synctex.gz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

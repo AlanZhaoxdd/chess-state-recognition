@@ -1,0 +1,15 @@
+# Core (needed by the data layer and everyone's code)
+numpy
+opencv-python
+tqdm
+pytest
+
+# Classical features + classifiers
+scikit-image
+scikit-learn
+joblib
+matplotlib
+
+# Deep learning: install separately so you get the build matching your GPU, e.g.
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+# (see https://pytorch.org/get-started/locally/ for the right command)
