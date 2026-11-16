@@ -1,3 +1,4 @@
+
 """Names for the available stage implementations.
 
 The command-line scripts pick implementations by name, e.g.
@@ -7,7 +8,7 @@ To add your implementation, write a function that builds it (loading any
 trained model from :data:`MODELS_DIR`) and add it to the right dictionary::
 
     def _hog_svm_pieces():
-        from chessrec.hog_svm import HogSvmClassifier   # import here, see below
+        from chessrec.hog_svm import HogSvmClassifier
         return HogSvmClassifier.load(MODELS_DIR / "hog_svm_pieces.joblib")
 
     PIECE_CLASSIFIERS["hog_svm"] = _hog_svm_pieces
@@ -34,8 +35,14 @@ def _tiny(task: str):
     return TinyImageClassifier.load(MODELS_DIR / f"tiny_{task}.joblib")
 
 
+def _hough_localiser():
+    from chessrec.localisation import ChessboardLocaliser
+    return ChessboardLocaliser()
+
+
 LOCALISERS: dict[str, Callable] = {
     "oracle": lambda: None,
+    "hough": _hough_localiser,
 }
 
 OCCUPANCY_CLASSIFIERS: dict[str, Callable] = {
