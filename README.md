@@ -1,7 +1,5 @@
 # Chess Game State Recognition from a Single Image
 
-COMP3204 Computer Vision — Coursework 2 (group of 4).
-
 ## Goal
 
 We are building a system that takes a single photo of a real chessboard, taken from an ordinary angle such as from a phone, and works out the full game state: which piece, if any, sits on each of the 64 squares. The output is the board position, written in FEN, the standard text notation for chess positions, so it can be loaded straight into a chess engine or an online board.
