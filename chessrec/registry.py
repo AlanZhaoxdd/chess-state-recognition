@@ -1,22 +1,8 @@
-"""Names for the available stage implementations.
+"""Maps names (used by the scripts' command-line options) to stage implementations.
 
-The command-line scripts pick implementations by name, e.g.
-``python scripts/evaluate.py --occupancy tiny --pieces oracle``.
-
-To add your implementation, write a function that builds it (loading any
-trained model from :data:`MODELS_DIR`) and add it to the right dictionary::
-
-    def _hog_svm_pieces():
-        from chessrec.hog_svm import HogSvmClassifier   # import here, see below
-        return HogSvmClassifier.load(MODELS_DIR / "hog_svm_pieces.joblib")
-
-    PIECE_CLASSIFIERS["hog_svm"] = _hog_svm_pieces
-
-Import heavy dependencies (PyTorch, ...) inside the function, so that the
-scripts still start for people who have not installed them.
-
-``"oracle"`` is always available and maps to ``None``: the pipeline then
-reads that stage's answer from the ground-truth label.
+To add one, write a function that loads it and add it to the right dict.
+Import heavy libraries like PyTorch inside that function. "oracle" maps to
+None, i.e. the answer is read from the label.
 """
 
 from __future__ import annotations
@@ -25,8 +11,7 @@ from typing import Callable
 
 from chessrec import config
 
-#: Where trained models are stored (git-ignored).
-MODELS_DIR = config.ROOT / "experiments" / "models"
+MODELS_DIR = config.ROOT / "experiments" / "models"  # git-ignored
 
 
 def _tiny(task: str):

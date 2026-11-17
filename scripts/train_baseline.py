@@ -1,12 +1,6 @@
-"""Fit the tiny-image k-NN baseline for occupancy and piece classification.
+"""Fit the tiny-image k-NN baseline for occupancy and pieces.
 
-Reads the crops written by ``scripts/export_squares.py`` and stores the two
-classifiers in ``experiments/models/tiny_{occupancy,pieces}.joblib``.
-
-Usage::
-
-    python scripts/train_baseline.py                     # first 300 training boards
-    python scripts/train_baseline.py --split val --max-boards 100
+Reads the exported crops and saves experiments/models/tiny_{occupancy,pieces}.joblib.
 """
 
 from __future__ import annotations
@@ -18,7 +12,7 @@ from chessrec.baselines import TinyImageClassifier
 from chessrec.data import load_square_crops
 from chessrec.registry import MODELS_DIR
 
-#: Tiny-image size (width, height) per task; piece crops are twice as tall.
+# (width, height); piece crops are twice as tall
 SIZES = {"occupancy": (16, 16), "pieces": (16, 32)}
 
 

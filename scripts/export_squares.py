@@ -1,21 +1,8 @@
 """Cut every rendered board into per-square crops for the classifiers.
 
-Uses the *ground-truth* corners from the labels, so the classifiers can be
-developed and evaluated independently of board localisation.
-
-Output (one PNG per square, class = folder name, so it works directly with
-``torchvision.datasets.ImageFolder`` and is easy to walk for HOG/LBP)::
-
-    data/squares/
-        occupancy/<split>/<empty|occupied>/<board id>_<square>.png   100x100
-        pieces/<split>/<white_pawn|...|black_king>/<board id>_<square>.png   200x100 (HxW)
-
-Occupancy has a crop for all 64 squares; pieces only for occupied squares.
-
-Usage::
-
-    python scripts/export_squares.py                      # every split that is downloaded
-    python scripts/export_squares.py --splits val --limit 20
+Uses the ground-truth corners, so the classifiers don't depend on board
+localisation. Writes data/squares/{occupancy,pieces}/<split>/<class>/*.png
+(one folder per class, so ImageFolder can read it).
 """
 
 from __future__ import annotations
@@ -35,7 +22,7 @@ from chessrec.fen import EMPTY, OCCUPANCY_NAMES, PIECE_NAMES, SYMBOL_TO_NAME, sq
 
 
 def save_png(path: Path, image: np.ndarray) -> None:
-    """Write a PNG; works with non-ASCII paths on Windows, unlike cv2.imwrite."""
+    # cv2.imwrite can't handle non-ASCII paths on Windows
     ok, buffer = cv2.imencode(".png", image)
     if not ok:
         raise OSError(f"Could not encode {path}")
@@ -43,15 +30,15 @@ def save_png(path: Path, image: np.ndarray) -> None:
 
 
 def export_board(task: tuple[BoardSample, Path, Path]) -> tuple[int, int]:
-    """Export all crops of one board. Returns (#occupancy, #piece) crops."""
+    """Save all crops of one board. Returns (number of occupancy crops, number of piece crops)."""
     sample, occupancy_dir, pieces_dir = task
     warped = geometry.warp_board(sample.load_image(), sample.corners)
     grid = sample.grid
     n_pieces = 0
 
-    for row in range(8):          # image cells, see chessrec.geometry
+    for row in range(8):
         for col in range(8):
-            # Which chess square does this image cell show?
+            # chess square shown in this image cell
             g_row, g_col = (row, col) if sample.white_turn else (7 - row, 7 - col)
             symbol = grid[g_row, g_col]
             name = f"{sample.sample_id}_{square_name(g_row, g_col)}.png"
@@ -72,7 +59,7 @@ def export_split(split: str, limit: int | None, workers: int) -> None:
 
     occupancy_dir = config.SQUARES_DIR / "occupancy" / split
     pieces_dir = config.SQUARES_DIR / "pieces" / split
-    # Start from empty folders so stale crops from an earlier run cannot mix in.
+    # start from empty folders so old crops don't mix in
     for folder, classes in ((occupancy_dir, OCCUPANCY_NAMES), (pieces_dir, PIECE_NAMES)):
         shutil.rmtree(folder, ignore_errors=True)
         for name in classes:

@@ -1,13 +1,7 @@
 """Recognise the position in one photo and print it as FEN.
 
-Usage::
-
-    python scripts/predict.py photo.jpg --localiser <name> --occupancy tiny --pieces tiny
-    python scripts/predict.py data/render/val/0024.png --label data/render/val/0024.json
-
-Stages left at ``oracle`` read their answer from ``--label`` (a dataset
-label file), so a photo without a label needs a real implementation for
-every stage. Use ``--black`` if the photo is taken from Black's side.
+Stages left at "oracle" need --label. Use --black if the photo is taken
+from Black's side.
 """
 
 from __future__ import annotations

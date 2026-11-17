@@ -1,16 +1,8 @@
-"""Run the pipeline over a dataset split and report all metrics.
+"""Run the pipeline on a split and print/save all metrics.
 
-Each stage is chosen by name (see ``chessrec/registry.py``); ``oracle``
-reads that stage's answer from the labels, which isolates the other stages.
-
-Usage::
-
-    python scripts/evaluate.py                                   # all oracle: must be 100%
-    python scripts/evaluate.py --occupancy tiny --pieces tiny    # baseline classifiers
-    python scripts/evaluate.py --split test --name final ...     # final numbers
-
-The printed report is also saved as JSON in ``experiments/runs/<name>.json``.
-Tune on ``val``; touch ``test`` only for the numbers that go in the report.
+Pick each stage by name from chessrec/registry.py; "oracle" uses the label.
+Results are saved to experiments/runs/<name>.json. Tune on val, use test
+only for the final numbers.
 """
 
 from __future__ import annotations

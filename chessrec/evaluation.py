@@ -1,25 +1,7 @@
-"""Evaluation metrics, shared by everyone so numbers are comparable.
+"""Evaluation metrics. Everyone uses these so the numbers are comparable.
 
-Typical use::
-
-    evaluator = Evaluator()
-    for sample in dataset:
-        result = recognise(sample.load_image(), truth=sample, ...)
-        evaluator.add(sample, result)
-    print(format_report(evaluator.summary()))
-
-What is measured
-----------------
-* **Localisation** -- mean corner error in pixels and the share of boards
-  whose four corners are all within a tolerance of the true ones.
-* **Occupancy** -- accuracy, precision and recall over all squares
-  ("occupied" is the positive class).
-* **Pieces** -- on squares that are occupied *and* were judged occupied:
-  overall accuracy, per-class recall and the 12x12 confusion matrix. Report
-  per-class numbers: pawns dominate, so overall accuracy alone flatters.
-* **Whole board** -- wrong squares per board, and the share of boards with
-  no mistake / at most one mistake. This is the metric that matters to a
-  user of the system.
+Pieces are only scored on squares that are occupied and were also predicted
+occupied. Report per-class recall too, since pawns dominate the accuracy.
 """
 
 from __future__ import annotations
@@ -31,47 +13,33 @@ from chessrec.data import BoardSample
 from chessrec.fen import EMPTY, PIECE_NAMES, SYMBOL_TO_ID
 from chessrec.pipeline import Recognition
 
-#: A board counts as localised if every corner is within this fraction of
-#: the image width of its true position (12 px for a 1200 px wide photo,
-#: roughly a quarter of a square).
+# a board is localised if every corner is within 1% of the image width (12 px at 1200 px)
 CORNER_TOLERANCE = 0.01
 
 
 def corner_errors(predicted: np.ndarray, true: np.ndarray) -> np.ndarray:
-    """Distance in pixels between matching corners, shape (4,).
-
-    Both sets are put in the same order first, so the input order is free.
-    """
+    """Pixel distance between matching corners (input order doesn't matter)."""
     difference = geometry.sort_corners(predicted) - geometry.sort_corners(true)
     return np.linalg.norm(difference, axis=1)
 
 
 def _ratio(numerator: float, denominator: float) -> float:
-    """Division that returns NaN instead of failing when nothing was counted."""
     return float(numerator) / denominator if denominator else float("nan")
 
 
 class Evaluator:
-    """Accumulates results board by board and summarises them."""
+    """Collects results board by board, then summary() gives all metrics."""
 
     def __init__(self, corner_tolerance: float = CORNER_TOLERANCE):
         self.corner_tolerance = corner_tolerance
         self.corner_error: list[float] = []     # mean error of each found board
-        self.localised: list[bool] = []         # one entry per board
+        self.localised: list[bool] = []
         self.board_errors: list[int] = []       # wrong squares per board
         self.occupancy = np.zeros((2, 2), dtype=int)     # [true, predicted]
         self.pieces = np.zeros((12, 12), dtype=int)      # [true, predicted]
 
     def add(self, truth: BoardSample, result: Recognition, image_width: int | None = None) -> None:
-        """Record the result for one board.
-
-        Args:
-            truth: the ground-truth label.
-            result: what the pipeline predicted.
-            image_width: width of the photo in pixels, for the localisation
-                tolerance. Read from the image file if not given.
-        """
-        # Localisation
+        """Record one board. image_width is read from the file if not given."""
         if result.corners is None:
             self.localised.append(False)
         else:
@@ -81,7 +49,6 @@ class Evaluator:
             self.corner_error.append(float(errors.mean()))
             self.localised.append(bool(errors.max() <= self.corner_tolerance * image_width))
 
-        # Squares
         true_grid, predicted_grid = truth.grid, np.asarray(result.grid)
         self.board_errors.append(int((true_grid != predicted_grid).sum()))
 
@@ -96,7 +63,6 @@ class Evaluator:
             self.pieces[SYMBOL_TO_ID[t], SYMBOL_TO_ID[p]] += 1
 
     def summary(self) -> dict:
-        """All metrics as a JSON-serialisable dictionary."""
         n = len(self.board_errors)
         errors = np.array(self.board_errors)
         (tn, fp), (fn, tp) = self.occupancy
@@ -134,7 +100,7 @@ class Evaluator:
 
 
 def format_report(summary: dict) -> str:
-    """Readable text version of :meth:`Evaluator.summary`."""
+    """Text version of Evaluator.summary() for printing."""
     loc, occ, pcs, board = (summary[k] for k in ("localisation", "occupancy", "pieces", "board"))
     lines = [
         f"Boards evaluated            {summary['boards']}",

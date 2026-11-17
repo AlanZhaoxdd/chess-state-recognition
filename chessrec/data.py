@@ -1,18 +1,7 @@
-"""Loading the rendered chessboard dataset.
+"""Loading the rendered dataset (data/render/<split>/<id>.png + <id>.json).
 
-Expected layout (created by ``scripts/download_data.py``)::
-
-    data/render/
-        train/0000.png  0000.json  0001.png  0001.json ...
-        val/...
-        test/...
-
-Each JSON label holds at least
-
-* ``fen``        -- the position
-* ``corners``    -- the four outer corners of the playing area, in pixels
-* ``white_turn`` -- True if White is to move; the camera stands on the side
-  of the player to move
+Each label has at least `fen`, `corners` (4 corners of the playing area) and
+`white_turn` (the camera is on the side of the player to move).
 """
 
 from __future__ import annotations
@@ -31,28 +20,22 @@ from chessrec.fen import fen_to_grid
 
 @dataclass(frozen=True)
 class BoardSample:
-    """One labelled photo of a chessboard.
-
-    The image is read from disk only when :meth:`load_image` is called, so a
-    whole split can be listed cheaply.
-    """
+    """One labelled photo. The image is only read when load_image() is called."""
 
     sample_id: str
     image_path: Path
     fen: str
-    corners: np.ndarray  # (4, 2) float32 pixel coordinates, order not fixed
+    corners: np.ndarray  # (4, 2) float32, any order
     white_turn: bool
     meta: dict = field(default_factory=dict, compare=False)  # other label keys
 
     @property
     def grid(self) -> np.ndarray:
-        """The position as an 8x8 grid (see :mod:`chessrec.fen`)."""
         return fen_to_grid(self.fen)
 
     def load_image(self) -> np.ndarray:
-        """Read the photo as an H x W x 3 BGR array."""
-        # np.fromfile + imdecode instead of cv2.imread: imread cannot open
-        # paths with non-ASCII characters on Windows.
+        """Read the photo as a BGR array."""
+        # cv2.imread can't open non-ASCII paths on Windows
         buffer = np.fromfile(self.image_path, dtype=np.uint8)
         image = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
         if image is None:
@@ -60,17 +43,11 @@ class BoardSample:
         return image
 
 
-#: Image file types looked for next to a label, in order of preference.
 IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg")
 
 
 def _find_image(label_path: Path) -> Path:
-    """Path of the photo that belongs to a label file.
-
-    The dataset uses ``<id>.png``; our own photos may be JPEGs. If no image
-    exists yet the ``.png`` path is returned, and reading it fails later
-    with a clear message.
-    """
+    # the dataset uses .png, our own photos may be .jpg
     for suffix in IMAGE_SUFFIXES:
         for candidate in (label_path.with_suffix(suffix),
                           label_path.with_suffix(suffix.upper())):
@@ -80,11 +57,7 @@ def _find_image(label_path: Path) -> Path:
 
 
 def load_sample(label_path: Path) -> BoardSample:
-    """Build a :class:`BoardSample` from a ``<id>.json`` label file.
-
-    The photo is expected next to it with the same name (``<id>.png`` or
-    ``<id>.jpg``).
-    """
+    """Build a BoardSample from a <id>.json label file."""
     label_path = Path(label_path)
     with open(label_path, encoding="utf-8") as f:
         label = json.load(f)
@@ -107,24 +80,12 @@ def load_sample(label_path: Path) -> BoardSample:
 def load_square_crops(
     kind: str, split: str, max_boards: int | None = None, root: Path | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Load exported square crops into memory (for classical classifiers).
+    """Load crops written by scripts/export_squares.py into memory.
 
-    The crops must have been written by ``scripts/export_squares.py``.
-
-    Args:
-        kind: ``"occupancy"`` or ``"pieces"``.
-        split: ``"train"``, ``"val"`` or ``"test"``.
-        max_boards: use only the first N boards (by sorted id). All crops of
-            a board are kept or dropped together, so a subset never shares a
-            board with the rest.
-        root: folder holding the exported crops (default: ``SQUARES_DIR``).
-
-    Returns:
-        ``(images, labels, board_ids)``: uint8 BGR images of shape
-        (N, H, W, 3), integer class ids of shape (N,) (see
-        :mod:`chessrec.fen`), and the board id of every crop, shape (N,).
+    kind is "occupancy" or "pieces". max_boards keeps only the first N boards,
+    with all crops of a board kept together. Returns (images, labels, board_ids).
     """
-    from chessrec.fen import OCCUPANCY_NAMES, PIECE_NAMES  # avoid a cycle at import
+    from chessrec.fen import OCCUPANCY_NAMES, PIECE_NAMES  # avoid import cycle
 
     class_names = {"occupancy": OCCUPANCY_NAMES, "pieces": PIECE_NAMES}[kind]
     folder = Path(root or config.SQUARES_DIR) / kind / split
@@ -135,7 +96,7 @@ def load_square_crops(
     files = [(path, class_id)
              for class_id, name in enumerate(class_names)
              for path in sorted((folder / name).glob("*.png"))]
-    # File names are "<board id>_<square>.png".
+    # file names are <board id>_<square>.png
     board_of = [path.stem.rsplit("_", 1)[0] for path, _ in files]
     if max_boards is not None:
         keep = set(sorted(set(board_of))[:max_boards])
@@ -151,18 +112,10 @@ def load_square_crops(
 
 
 class RenderDataset:
-    """All labelled boards of one split, in a fixed (sorted) order.
-
-    Example::
-
-        val = RenderDataset("val")
-        sample = val[0]
-        image = sample.load_image()
-    """
+    """All labelled boards of one split, sorted by id."""
 
     def __init__(self, split: str, root: Path | None = None):
-        # Any folder under data/render/ is a valid split, so extra test sets
-        # (e.g. "real" for our own photos) work without code changes.
+        # any folder under data/render/ works, e.g. "real" for our own photos
         self.split = split
         self.folder = Path(root or config.RENDER_DIR) / split
         if not self.folder.is_dir():

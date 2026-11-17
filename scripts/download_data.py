@@ -1,17 +1,7 @@
-"""Download the rendered chessboard dataset into ``data/render/``.
+"""Download the rendered chessboard dataset into data/render/.
 
-The dataset is the synthetic one published with Wölflein & Arandjelović,
-"Determining Chess Game State from an Image" (J. Imaging, 2021), hosted on
-the Open Science Framework: https://doi.org/10.17605/OSF.IO/XF3KA
-
-Usage::
-
-    python scripts/download_data.py                 # val + test (about 0.75 GB)
-    python scripts/download_data.py --splits val    # one split only
-    python scripts/download_data.py --splits train val test   # everything (about 7.5 GB)
-
-Downloads are resumable-by-rerun: a finished archive with the right checksum
-is not downloaded again, and a split that is already unpacked is skipped.
+Dataset from Wölflein & Arandjelović (2021), hosted on OSF:
+https://doi.org/10.17605/OSF.IO/XF3KA. Re-running skips finished downloads.
 """
 
 from __future__ import annotations
@@ -30,7 +20,7 @@ from tqdm import tqdm
 
 from chessrec import config
 
-#: Archive name -> (download URL, size in bytes, MD5), as listed by OSF.
+# name -> (url, size in bytes, md5), as listed on OSF
 ARCHIVES = {
     "val.zip": ("https://osf.io/download/ydtcs/", 222_952_872,
                 "79fcba30484864b3ef745eaf1676ec10"),
@@ -42,7 +32,7 @@ ARCHIVES = {
                   "037e9de49a0b10f453d3d0da8cf28609"),
 }
 
-#: The training set is one ZIP split into two parts.
+# the training set is one zip split into two parts
 SPLIT_ARCHIVES = {
     "val": ["val.zip"],
     "test": ["test.zip"],
@@ -53,7 +43,6 @@ CHUNK = 1 << 20  # 1 MiB
 
 
 def md5(path: Path) -> str:
-    """MD5 checksum of a file, read in chunks so large files fit in memory."""
     digest = hashlib.md5()
     with open(path, "rb") as f, tqdm(
             total=path.stat().st_size, unit="B", unit_scale=True,
@@ -65,7 +54,7 @@ def md5(path: Path) -> str:
 
 
 def download(name: str, folder: Path) -> Path:
-    """Download one archive (unless a verified copy is already there)."""
+    """Download one archive, unless a copy with the right checksum is already there."""
     url, size, checksum = ARCHIVES[name]
     target = folder / name
     if target.exists() and target.stat().st_size == size and md5(target) == checksum:
@@ -87,29 +76,23 @@ def download(name: str, folder: Path) -> Path:
 
 
 def unzip(archive: Path, folder: Path) -> None:
-    """Extract a normal (single-file) ZIP archive into ``folder``."""
     with zipfile.ZipFile(archive) as z:
         for member in tqdm(z.infolist(), desc=f"extract  {archive.name}", unit="file"):
             z.extract(member, folder)
 
 
 def unzip_split_train(folder: Path) -> bool:
-    """Extract the two-part training archive with an external tool.
+    """Extract the two-part train archive with 7-Zip, Bandizip or Info-ZIP.
 
-    Python's ``zipfile`` cannot read split archives, so this needs 7-Zip
-    (``7z``), Bandizip (``bz``) or Info-ZIP (``zip`` + ``unzip``).
-
-    Returns:
-        True if the archive was extracted.
+    Python's zipfile can't read split archives. Returns True on success.
     """
     archive = folder / "train.zip"
     seven_zip = shutil.which("7z") or shutil.which("7za")
     if seven_zip:
-        # 7-Zip finds train.z01 next to train.zip by itself.
+        # 7-Zip finds train.z01 next to train.zip by itself
         return subprocess.run([seven_zip, "x", "-y", f"-o{folder}", str(archive)]).returncode == 0
 
-    # Bandizip's console tool. It is usually not on the PATH: add its install
-    # folder to the PATH, or set the BANDIZIP environment variable to bz.exe.
+    # Bandizip is usually not on the PATH; BANDIZIP can point to bz.exe
     bandizip = (shutil.which("bz") or os.environ.get("BANDIZIP")
                 or r"C:\Program Files\Bandizip\bz.exe")
     if Path(bandizip).is_file():
@@ -125,7 +108,6 @@ def unzip_split_train(folder: Path) -> bool:
 
 
 def has_data(split_folder: Path) -> bool:
-    """True if a split folder already holds label files."""
     return split_folder.is_dir() and any(split_folder.glob("*.json"))
 
 
