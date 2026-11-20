@@ -19,6 +19,11 @@ def _tiny(task: str):
     return TinyImageClassifier.load(MODELS_DIR / f"tiny_{task}.joblib")
 
 
+def _hog_svm(task: str):
+    from chessrec.classical import SvmClassifier
+    return SvmClassifier.load(MODELS_DIR / f"hog_svm_{task}.joblib")
+
+
 LOCALISERS: dict[str, Callable] = {
     "oracle": lambda: None,
 }
@@ -26,9 +31,11 @@ LOCALISERS: dict[str, Callable] = {
 OCCUPANCY_CLASSIFIERS: dict[str, Callable] = {
     "oracle": lambda: None,
     "tiny": lambda: _tiny("occupancy"),
+    "hog_svm": lambda: _hog_svm("occupancy"),
 }
 
 PIECE_CLASSIFIERS: dict[str, Callable] = {
     "oracle": lambda: None,
     "tiny": lambda: _tiny("pieces"),
+    "hog_svm": lambda: _hog_svm("pieces"),
 }
