@@ -21,6 +21,9 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from pathlib import Path
+
+import numpy as np
 
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 
@@ -36,7 +39,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--task", choices=("occupancy", "pieces", "both"), default="both")
     parser.add_argument("--name", default="hog_svm",
-                        help="model file name (default: hog_svm, the name registered for evaluate.py)")
+                        help="model file name; hog_svm and hog_svm_jitter are registered "
+                             "for evaluate.py (default: hog_svm)")
     parser.add_argument("--features", nargs="+", choices=FEATURE_TYPES, default=["hog"])
     parser.add_argument("--kernel", choices=("linear", "rbf", "nystroem"), default="linear")
     parser.add_argument("--n-components", type=int, default=2000,
@@ -55,6 +59,9 @@ def parse_args() -> argparse.Namespace:
                         help="grid of cells with their own colour histogram (default: 3 6)")
     parser.add_argument("--train-split", default="train")
     parser.add_argument("--val-split", default="val")
+    parser.add_argument("--extra-squares-dir", type=Path, default=None,
+                        help="also train on the crops in this folder, e.g. "
+                             "data/squares_jitter8 from export_jittered_squares.py")
     parser.add_argument("--max-boards", type=int, default=None,
                         help="train on the first N boards only (default: all)")
     parser.add_argument("--jobs", type=int, default=-1,
@@ -75,6 +82,10 @@ def train_task(task: str, args: argparse.Namespace) -> dict:
     start = time.perf_counter()
     x_train, y_train = cached_features(extractor, task, args.train_split,
                                        args.max_boards, n_jobs=args.jobs)
+    if args.extra_squares_dir is not None:
+        x_extra, y_extra = cached_features(extractor, task, args.train_split, args.max_boards,
+                                           n_jobs=args.jobs, root=args.extra_squares_dir)
+        x_train, y_train = np.vstack([x_train, x_extra]), np.concatenate([y_train, y_extra])
     x_val, y_val = cached_features(extractor, task, args.val_split, n_jobs=args.jobs)
     print(f"[{task}] {len(y_train)} train crops, {len(y_val)} val crops, "
           f"{x_train.shape[1]} features ({time.perf_counter() - start:.0f}s)")
@@ -104,6 +115,7 @@ def train_task(task: str, args: argparse.Namespace) -> dict:
             "kernel": args.kernel, "gamma": args.gamma, "pca": args.pca,
             "n_components": args.n_components,
             "train_split": args.train_split, "max_boards": args.max_boards,
+            "extra_squares_dir": str(args.extra_squares_dir) if args.extra_squares_dir else None,
             "n_train": len(y_train), "n_features": int(x_train.shape[1]),
             "sweep": sweep, "best_C": best[0]["C"]}
 

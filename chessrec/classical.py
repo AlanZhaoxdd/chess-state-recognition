@@ -230,15 +230,16 @@ class SvmClassifier:
         return joblib.load(path)
 
 
-def list_crops(kind: str, split: str, max_boards: int | None = None
-               ) -> tuple[list[Path], np.ndarray, np.ndarray]:
+def list_crops(kind: str, split: str, max_boards: int | None = None,
+               root: Path | None = None) -> tuple[list[Path], np.ndarray, np.ndarray]:
     """Paths, class ids and board ids of the exported crops, without reading them.
 
     Same selection rules as :func:`chessrec.data.load_square_crops`: ``max_boards``
-    keeps all crops of the first N boards.
+    keeps all crops of the first N boards. ``root`` defaults to data/squares;
+    pass another folder with the same layout, e.g. jittered crops.
     """
     class_names = {"occupancy": OCCUPANCY_NAMES, "pieces": PIECE_NAMES}[kind]
-    folder = config.SQUARES_DIR / kind / split
+    folder = Path(root or config.SQUARES_DIR) / kind / split
     if not folder.is_dir():
         raise FileNotFoundError(
             f"{folder} does not exist. Run `python scripts/export_squares.py` first.")
@@ -283,16 +284,17 @@ FEATURE_CACHE = config.DATA_DIR / "features"
 
 
 def cached_features(extractor: FeatureExtractor, kind: str, split: str,
-                    max_boards: int | None = None, n_jobs: int = -1
-                    ) -> tuple[np.ndarray, np.ndarray]:
+                    max_boards: int | None = None, n_jobs: int = -1,
+                    root: Path | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Feature matrix and class ids for a split, computed once per feature type.
 
     Each feature type is cached separately under :data:`FEATURE_CACHE`, keyed
     by its settings and the selected crops, and the requested types are then
     concatenated in order.
     """
-    paths, labels, _ = list_crops(kind, split, max_boards)
-    selection = hashlib.md5("\n".join(p.name for p in paths).encode()).hexdigest()[:10]
+    paths, labels, _ = list_crops(kind, split, max_boards, root)
+    listing = [str(root or "")] + [p.name for p in paths]
+    selection = hashlib.md5("\n".join(listing).encode()).hexdigest()[:10]
     blocks = []
     for name in extractor.features:
         single = FeatureExtractor(**{**vars(extractor), "features": (name,)})

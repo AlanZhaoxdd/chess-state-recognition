@@ -121,3 +121,17 @@ def test_cached_features_are_reused(tmp_path, monkeypatch):
     assert fewer.shape[0] == 2
     second, _ = cached_features(fx, "occupancy", "train", n_jobs=1)
     assert np.array_equal(first, second)
+
+
+def test_crops_can_come_from_another_folder(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "SQUARES_DIR", tmp_path / "squares")
+    monkeypatch.setattr(classical, "FEATURE_CACHE", tmp_path / "features")
+    write_crops(tmp_path / "squares", ["0001"])
+    write_crops(tmp_path / "jitter", ["0001-j0", "0002-j0"])
+    fx = FeatureExtractor(features=("colour",), size=(64, 64))
+
+    clean, _ = cached_features(fx, "occupancy", "train", n_jobs=1)
+    extra, _ = cached_features(fx, "occupancy", "train", n_jobs=1, root=tmp_path / "jitter")
+    assert clean.shape[0] == 2 and extra.shape[0] == 4
+    _, _, boards = list_crops("occupancy", "train", root=tmp_path / "jitter")
+    assert sorted(set(boards)) == ["0001-j0", "0002-j0"]

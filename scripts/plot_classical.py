@@ -7,14 +7,18 @@ Reads the result files in experiments/results/ and writes, next to them:
   classifier's own errors show)
 * classical_ablation_pieces.pdf/.png -- mean per-class recall on val for each
   ablation configuration, with the tiny-image baseline for reference
+* with --failures: classical_failures_test.pdf/.png -- example test crops
+  for the most common mistakes (needs the trained hog_svm model and the crops)
 
 Usage::
 
     python scripts/plot_classical.py
+    python scripts/plot_classical.py --failures
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 
 import matplotlib
@@ -23,8 +27,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-from chessrec import config  # noqa: E402
-from chessrec.fen import PIECE_SYMBOLS  # noqa: E402
+from chessrec import config, registry  # noqa: E402
+from chessrec.classical import iter_crop_batches, list_crops  # noqa: E402
+from chessrec.fen import PIECE_NAMES, PIECE_SYMBOLS  # noqa: E402
 
 RESULTS = config.ROOT / "experiments" / "results"
 BLUE, GREY, INK, MUTED = "#2a78d6", "#a3a29c", "#0b0b0b", "#52514e"
@@ -97,6 +102,45 @@ def ablation_figure() -> None:
     save(fig, "classical_ablation_pieces")
 
 
+# (true, predicted) pairs to show, the largest off-diagonal cells of the confusion matrix
+MISTAKES = [("white_queen", "white_bishop"), ("black_queen", "black_bishop"),
+            ("white_bishop", "white_queen"), ("white_king", "white_queen"),
+            ("black_bishop", "black_knight"), ("white_pawn", "black_pawn")]
+
+
+def short(name: str) -> str:
+    colour, piece = name.split("_")
+    return f"{colour[0].upper()} {piece}"
+
+
+def failure_figure(per_mistake: int = 2) -> None:
+    classifier = registry.PIECE_CLASSIFIERS["hog_svm"]()
+    paths, labels, _ = list_crops("pieces", "test")
+    wanted = np.isin(labels, [PIECE_NAMES.index(t) for t, _ in MISTAKES])
+    paths = [p for p, keep in zip(paths, wanted) if keep]
+    labels = labels[wanted]
+    predicted = np.concatenate([classifier.predict(batch) for batch in iter_crop_batches(paths, 500)])
+
+    fig, axes = plt.subplots(per_mistake, len(MISTAKES), figsize=(6.9, 3.4 * per_mistake / 2))
+    for col, (true, wrong) in enumerate(MISTAKES):
+        hits = np.flatnonzero((labels == PIECE_NAMES.index(true))
+                              & (predicted == PIECE_NAMES.index(wrong)))[:per_mistake]
+        for row in range(per_mistake):
+            ax = axes[row, col]
+            ax.axis("off")
+            if row < len(hits):
+                crop = next(iter_crop_batches([paths[hits[row]]]))[0]
+                ax.imshow(crop[..., ::-1])  # BGR -> RGB
+        axes[0, col].set_title(f"{short(true)}\n→ {short(wrong)}", fontsize=7, color=INK)
+    save(fig, "classical_failures_test")
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("--failures", action="store_true",
+                        help="also draw example mistakes (needs the model and the test crops)")
+    args = parser.parse_args()
     confusion_figure()
     ablation_figure()
+    if args.failures:
+        failure_figure()
