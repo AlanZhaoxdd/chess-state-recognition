@@ -2,7 +2,7 @@
 
 ## Goal
 
-Given one photo of a real chessboard, find out which piece is on each of the 64 squares and output the position as FEN. We use traditional CV to find the board, hand-crafted features + SVM to classify the pieces, and a CNN for the same task so we can compare the two.
+Given one image of a chessboard, find out which piece is on each of the 64 squares and output the position as FEN. We use traditional CV to find the board, hand-crafted features + SVM to classify the pieces, and a CNN for the same task so we can compare the two.
 
 ## Pipeline
 
@@ -143,4 +143,4 @@ The report has to say which lecture techniques we use, so update this table when
 | | | A. Board localisation |
 | | | B. Hand-crafted features + SVM |
 | | | C. CNN classifiers |
-| | | D. Real photos, experiments and report |
+| | | D. Experiments and report |
