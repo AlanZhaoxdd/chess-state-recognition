@@ -1,0 +1,48 @@
+% Package B: hand-crafted features + SVM. Draft for the group report.
+% Figures are in experiments/results/ (copy the .pdf files next to the report).
+% Numbers come from experiments/results/*.json; see the comments for which file.
+
+\subsection{Hand-crafted features and SVMs}
+
+Both classifiers work on the square crops produced by the shared warp. Occupancy uses $100\times100$ crops centred on the square, while piece crops are $200\times100$ and reach upwards, because after the warp a standing piece leans into the squares behind it. Every crop is resized to $64\times64$ or $64\times128$ and described by three kinds of features. The first is a set of HSV colour histograms with four bins per channel, computed separately on a $3\times6$ grid of cells, in the spirit of the colour histograms and block-based global features from the lectures. One histogram over the whole crop would not be enough. The light pieces are made of the same wood as the light squares, so the classifier has to know where the bright pixels are, not just how many there are. The second is HOG, which takes the gradient orientation histograms behind SIFT and applies them on a dense grid: nine unsigned orientation bins per cell and $2\times2$-cell blocks with L2-Hys normalisation. Piece crops use 12-pixel cells and occupancy crops 8-pixel cells. As a self-study addition, uniform LBP histograms with $P=8$ and $R=1$ over 16-pixel cells describe the surface texture.
+
+Each feature type is standardised and then divided by the square root of its length, so that all types carry the same total variance. Without this step the 1296 HOG values would outweigh the 216 colour values in every distance the classifier computes. Classification uses one-vs-rest SVMs with an RBF kernel. Pawns outnumber queens by more than eight to one, so the classes are weighted by their inverse frequency. An exact kernel SVM scales quadratically with the number of samples and is impractical on 94k piece crops; we therefore approximate the kernel with the Nystr\"om method using 2000 landmark samples and train a linear SVM on the result. Like LBP, this approximation goes beyond the lectures. For the piece classifier $C=10$ gave the best validation accuracy among the values we tried, and the same value was kept for occupancy.
+
+Table~\ref{tab:classical} shows how the parts contribute. HOG is the strongest single feature, but on its own it mixes up the two colours: 7.5\% of piece crops get the wrong colour. Adding the colour histograms brings this down to 1.8\%, and LBP adds about another point. The RBF kernel is 2.4 points better than a linear SVM on the same features, and larger HOG cells help a little, probably because they tolerate small misalignments.
+
+% robustness_val_*.json and integration_val_hough_*.json
+That tolerance matters once the corners come from package A instead of the labels. When we move the true corners by Gaussian noise with a mean error of 10 pixels, piece accuracy falls from 91.4\% to 78.6\%: a shifted crop cuts off part of the piece or takes in its neighbour. We therefore cut every training board a second time after adding Gaussian noise with $\sigma=8$ pixels to each corner coordinate, label each crop with the square that really lies under the shifted cell, and train on these crops together with the clean ones. This kind of augmentation was not covered in the lectures either. The price is half a point when the corners are exact. In return the model keeps 86.1\% at 10 pixels of error (Fig.~\ref{fig:robustness}), and with package A's corners on the validation set piece accuracy rises from 88.1\% to 89.3\%.
+
+% test_oracle_hog_svm_jitter_hog_svm_jitter.json, test_oracle_oracle_tiny.json, test_oracle_tiny_oracle.json,
+% error counts from test_oracle_oracle_hog_svm_jitter.json
+On the test set with ground-truth corners the final SVMs reach 99.3\% occupancy accuracy and 90.9\% piece accuracy, with a mean per-class recall of 86.5\%. The tiny-image baseline reaches 89.1\% and 68.5\% on the same two tasks. Together the two SVMs make 2.4 errors per board on average. Of the 671 piece errors on test, 88 are queens and bishops confused in either direction and 85 are pawns given the wrong colour; pawns read as knights and kings read as queens follow with 39 and 33. In the examples we inspected, the type errors tend to come from the far rows, where pieces are small in the image, or from squares where a taller neighbour hides part of the piece. The wrong-colour pawns are often surrounded by pieces of the other colour, which then fill most of the crop.
+
+% classical_ablation_pieces.json, val_oracle_oracle_tiny.json, hog_svm_jitter_pieces_train.json
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+Piece classifier & Accuracy & Mean recall \\
+\midrule
+Tiny image + $k$-NN baseline & 68.2 & 51.1 \\
+HOG & 85.0 & 79.4 \\
+LBP & 78.7 & 73.2 \\
+Colour histograms & 80.5 & 73.8 \\
+HOG + colour & 89.8 & 84.7 \\
+HOG + LBP + colour & 91.1 & 86.8 \\
+\quad with a linear SVM & 88.8 & 83.2 \\
+\quad with 12-pixel HOG cells & 91.4 & 87.1 \\
+\quad 12-pixel cells + jittered corners, final & 90.9 & 86.2 \\
+\bottomrule
+\end{tabular}
+\caption{Piece classification on the validation set with ground-truth corners and occupancy, in \%. Unless stated otherwise the SVM uses the Nystr\"om-approximated RBF kernel and 8-pixel HOG cells.}
+\label{tab:classical}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{classical_robustness_val.pdf}
+\caption{Piece accuracy on the validation set as the board corners are moved by increasing Gaussian noise. Diamonds mark the accuracy obtained with the corners found by package A.}
+\label{fig:robustness}
+\end{figure}

@@ -1,0 +1,55 @@
+{
+  "setup": {
+    "split": "val",
+    "occupancy": "hog_svm_jitter",
+    "pieces": "hog_svm_jitter",
+    "limit": null,
+    "noise": "Gaussian, per corner and axis, seeded per board"
+  },
+  "results": [
+    {
+      "sigma_px": 0,
+      "mean_corner_error_px": 0.0,
+      "localisation_success": 1.0,
+      "occupancy_accuracy": 0.9918664383561644,
+      "pieces_accuracy": 0.9087774294670846,
+      "pieces_mean_class_recall": 0.8620158471833669,
+      "square_accuracy": 0.9607234589041096,
+      "mean_errors_per_board": 2.5136986301369864,
+      "boards_no_error": 0.14383561643835616
+    },
+    {
+      "sigma_px": 4,
+      "mean_corner_error_px": 4.952343695784268,
+      "localisation_success": 0.9452054794520548,
+      "occupancy_accuracy": 0.9895119863013698,
+      "pieces_accuracy": 0.8907035175879398,
+      "pieces_mean_class_recall": 0.8416211487130661,
+      "square_accuracy": 0.9522688356164384,
+      "mean_errors_per_board": 3.0547945205479454,
+      "boards_no_error": 0.13013698630136986
+    },
+    {
+      "sigma_px": 8,
+      "mean_corner_error_px": 10.05011270797416,
+      "localisation_success": 0.2191780821917808,
+      "occupancy_accuracy": 0.9848030821917808,
+      "pieces_accuracy": 0.861198738170347,
+      "pieces_mean_class_recall": 0.8119076620314333,
+      "square_accuracy": 0.9377140410958904,
+      "mean_errors_per_board": 3.9863013698630136,
+      "boards_no_error": 0.04794520547945205
+    },
+    {
+      "sigma_px": 12,
+      "mean_corner_error_px": 14.793972306055565,
+      "localisation_success": 0.0136986301369863,
+      "occupancy_accuracy": 0.9719606164383562,
+      "pieces_accuracy": 0.8092189500640204,
+      "pieces_mean_class_recall": 0.766892938945551,
+      "square_accuracy": 0.9081763698630136,
+      "mean_errors_per_board": 5.876712328767123,
+      "boards_no_error": 0.03424657534246575
+    }
+  ]
+}

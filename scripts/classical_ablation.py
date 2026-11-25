@@ -3,7 +3,8 @@
 Every configuration is trained on the train crops; C is picked on val crops,
 and the picked model is then run through the shared pipeline and evaluator on
 val (oracle for the other stages), so its numbers match scripts/evaluate.py.
-Results go to experiments/results/classical_ablation_<task>.{json,md}.
+Results go to experiments/runs/classical_ablation_<task>.{json,md}; copy them to
+experiments/results/ if the report uses them.
 
 Features are cached in data/features/, so re-running is quick. The test split
 is never touched here.
@@ -28,7 +29,7 @@ from chessrec.data import RenderDataset
 from chessrec.evaluation import Evaluator
 from chessrec.pipeline import recognise
 
-RESULTS_DIR = config.ROOT / "experiments" / "results"
+RUNS_DIR = config.ROOT / "experiments" / "runs"
 COLOUR = {"colour_grid": (3, 6), "colour_bins": 4}
 
 # (label, features, kernel, C values, extra extractor settings). C = 10 was the
@@ -108,8 +109,8 @@ def main() -> None:
         print(f"   C={best[1]:<4g} accuracy {metrics['accuracy']:.2%}  "
               f"{key.replace('_', ' ')} {metrics[key]:.2%}  ({seconds:.0f}s)", flush=True)
 
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    stem = RESULTS_DIR / f"classical_ablation_{args.task}"
+    RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    stem = RUNS_DIR / f"classical_ablation_{args.task}"
     setup = {"task": args.task, "train_split": args.train_split, "max_boards": args.max_boards,
              "n_components": args.n_components, "split": "val"}
     stem.with_suffix(".json").write_text(

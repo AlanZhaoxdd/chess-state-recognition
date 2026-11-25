@@ -7,7 +7,8 @@ board but misses the exact corners, which is what package A's errors look like.
 The noise is seeded per board, so every classifier sees exactly the same
 corners and the numbers are comparable.
 
-Results go to experiments/results/robustness_<name>.{json,md}.
+Results go to experiments/runs/robustness_<split>_<name>.{json,md}; copy them to
+experiments/results/ if the report uses them.
 
 Usage::
 
@@ -28,7 +29,7 @@ from chessrec.data import RenderDataset
 from chessrec.evaluation import Evaluator
 from chessrec.pipeline import recognise
 
-RESULTS_DIR = config.ROOT / "experiments" / "results"
+RUNS_DIR = config.ROOT / "experiments" / "runs"
 
 
 class FixedCorners:
@@ -38,6 +39,7 @@ class FixedCorners:
         self.corners: np.ndarray | None = None
 
     def localise(self, image: np.ndarray) -> np.ndarray | None:
+        """Ignore the image and return the stored corners."""
         return self.corners
 
 
@@ -98,8 +100,8 @@ def main() -> None:
     print("\n" + "\n".join(lines))
 
     name = args.name or f"{args.occupancy}_{args.pieces}"
-    stem = RESULTS_DIR / f"robustness_{args.split}_{name}"
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    stem = RUNS_DIR / f"robustness_{args.split}_{name}"
+    RUNS_DIR.mkdir(parents=True, exist_ok=True)
     setup = {"split": args.split, "occupancy": args.occupancy, "pieces": args.pieces,
              "limit": args.limit, "noise": "Gaussian, per corner and axis, seeded per board"}
     stem.with_suffix(".json").write_text(json.dumps({"setup": setup, "results": rows}, indent=2),

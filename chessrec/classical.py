@@ -178,6 +178,7 @@ class SvmClassifier:
     model: Pipeline | None = field(default=None, repr=False)
 
     def _build(self) -> Pipeline:
+        """Untrained scikit-learn pipeline for the chosen kernel."""
         gamma = 1 / len(self.extractor.features) if self.gamma == "scale" else self.gamma
         steps = [("scale", StandardScaler()),
                  ("blocks", BlockWeights(self.extractor.block_sizes()))]
@@ -263,6 +264,7 @@ def iter_crop_batches(paths: Sequence[Path], batch_size: int = 2000
 
 
 def _features_of_paths(extractor: FeatureExtractor, paths: Sequence[Path]) -> np.ndarray:
+    """Feature matrix for one chunk of crop files (run in a worker process)."""
     return np.concatenate([extractor.transform(batch) for batch in iter_crop_batches(paths)])
 
 
