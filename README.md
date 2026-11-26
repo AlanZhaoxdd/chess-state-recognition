@@ -124,7 +124,9 @@ The report has to say which lecture techniques we use, so update this table when
 | Board localisation | RANSAC, homography | Traditional CV | planned |
 | Square extraction | Perspective warp | Traditional CV | done (`geometry.py`) |
 | Occupancy / pieces | Tiny images + k-NN (baseline) | Feature extraction | done (`baselines.py`) |
-| Occupancy / pieces | HOG, LBP + SVM | Feature extraction | planned |
+| Occupancy / pieces | HSV colour histograms on a grid of cells, gradient orientation histograms (HOG) | Feature extraction | done (`classical.py`) |
+| Occupancy / pieces | SVM with RBF kernel, one-vs-rest for many classes | Classification (lectures) | done (`classical.py`) |
+| Occupancy / pieces | LBP texture histograms, Nyström kernel approximation, equal weight per feature type, class-balanced training, corner-jitter augmentation | Self-study (not from lectures) | done (`classical.py`) |
 | Occupancy / pieces | CNN (transfer learning) | Deep learning | planned |
 
 ## Working together
@@ -141,6 +143,6 @@ The report has to say which lecture techniques we use, so update this table when
 |---|---|---|
 | | | Framework and integration |
 | | | A. Board localisation |
-| | | B. Hand-crafted features + SVM |
+| Zifan Yang | zy1d22 | B. Hand-crafted features + SVM |
 | | | C. CNN classifiers |
 | | | D. Experiments and report |

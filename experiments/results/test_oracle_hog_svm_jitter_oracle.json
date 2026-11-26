@@ -1,0 +1,225 @@
+{
+  "boards": 342,
+  "localisation": {
+    "success_rate": 1.0,
+    "mean_corner_error_px": 0.0,
+    "tolerance_fraction_of_width": 0.01
+  },
+  "occupancy": {
+    "accuracy": 0.992781432748538,
+    "precision": 0.9827701349004941,
+    "recall": 0.9960741843779612,
+    "confusion_true_rows": [
+      [
+        14372,
+        129
+      ],
+      [
+        29,
+        7358
+      ]
+    ]
+  },
+  "pieces": {
+    "accuracy": 1.0,
+    "mean_class_recall": 1.0,
+    "per_class_recall": {
+      "white_pawn": 1.0,
+      "white_knight": 1.0,
+      "white_bishop": 1.0,
+      "white_rook": 1.0,
+      "white_queen": 1.0,
+      "white_king": 1.0,
+      "black_pawn": 1.0,
+      "black_knight": 1.0,
+      "black_bishop": 1.0,
+      "black_rook": 1.0,
+      "black_queen": 1.0,
+      "black_king": 1.0
+    },
+    "confusion_true_rows": [
+      [
+        1889,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        334,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        379,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        508,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        222,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        342,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1892,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        344,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        382,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        504,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        220,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        342
+      ]
+    ]
+  },
+  "board": {
+    "square_accuracy": 0.992781432748538,
+    "mean_errors_per_board": 0.4619883040935672,
+    "boards_no_error": 0.6461988304093568,
+    "boards_at_most_one_error": 0.9064327485380117
+  },
+  "setup": {
+    "split": "test",
+    "localiser": "oracle",
+    "occupancy": "hog_svm_jitter",
+    "pieces": "oracle",
+    "skip": 0,
+    "limit": null
+  }
+}

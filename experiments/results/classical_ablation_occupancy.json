@@ -1,0 +1,427 @@
+{
+  "setup": {
+    "task": "occupancy",
+    "train_split": "train",
+    "max_boards": 1000,
+    "n_components": 2000,
+    "split": "val"
+  },
+  "results": [
+    {
+      "config": 1,
+      "label": "HOG",
+      "features": [
+        "hog"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 16,
+        "colour_grid": [
+          1,
+          1
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 1764,
+      "seconds": 103,
+      "accuracy": 0.9886558219178082,
+      "precision": 0.9751762182041066,
+      "recall": 0.9922045525413159,
+      "confusion": [
+        [
+          6056,
+          81
+        ],
+        [
+          25,
+          3182
+        ]
+      ]
+    },
+    {
+      "config": 2,
+      "label": "LBP",
+      "features": [
+        "lbp"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "lbp"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 16,
+        "colour_grid": [
+          1,
+          1
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 160,
+      "seconds": 66,
+      "accuracy": 0.9655393835616438,
+      "precision": 0.9333133072994894,
+      "recall": 0.9688182101652635,
+      "confusion": [
+        [
+          5915,
+          222
+        ],
+        [
+          100,
+          3107
+        ]
+      ]
+    },
+    {
+      "config": 3,
+      "label": "Colour",
+      "features": [
+        "colour"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "colour"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 4,
+        "colour_grid": [
+          3,
+          6
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 216,
+      "seconds": 187,
+      "accuracy": 0.9657534246575342,
+      "precision": 0.9320562705776714,
+      "recall": 0.971000935453695,
+      "confusion": [
+        [
+          5910,
+          227
+        ],
+        [
+          93,
+          3114
+        ]
+      ]
+    },
+    {
+      "config": 4,
+      "label": "HOG + LBP",
+      "features": [
+        "hog",
+        "lbp"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog",
+          "lbp"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 16,
+        "colour_grid": [
+          1,
+          1
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 1924,
+      "seconds": 64,
+      "accuracy": 0.9904751712328768,
+      "precision": 0.9793972939729397,
+      "recall": 0.993140006236358,
+      "confusion": [
+        [
+          6070,
+          67
+        ],
+        [
+          22,
+          3185
+        ]
+      ]
+    },
+    {
+      "config": 5,
+      "label": "HOG + colour",
+      "features": [
+        "hog",
+        "colour"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog",
+          "colour"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 4,
+        "colour_grid": [
+          3,
+          6
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 1980,
+      "seconds": 135,
+      "accuracy": 0.9913313356164384,
+      "precision": 0.9818125770653514,
+      "recall": 0.993140006236358,
+      "confusion": [
+        [
+          6078,
+          59
+        ],
+        [
+          22,
+          3185
+        ]
+      ]
+    },
+    {
+      "config": 6,
+      "label": "HOG + LBP + colour",
+      "features": [
+        "hog",
+        "lbp",
+        "colour"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog",
+          "lbp",
+          "colour"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 4,
+        "colour_grid": [
+          3,
+          6
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 2140,
+      "seconds": 139,
+      "accuracy": 0.9921875,
+      "precision": 0.983940704138357,
+      "recall": 0.9934518241347053,
+      "confusion": [
+        [
+          6085,
+          52
+        ],
+        [
+          21,
+          3186
+        ]
+      ]
+    },
+    {
+      "config": 7,
+      "label": "HOG + LBP + colour, linear SVM",
+      "features": [
+        "hog",
+        "lbp",
+        "colour"
+      ],
+      "kernel": "linear",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog",
+          "lbp",
+          "colour"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 8,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 4,
+        "colour_grid": [
+          3,
+          6
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 2140,
+      "seconds": 113,
+      "accuracy": 0.9900470890410958,
+      "precision": 0.9811495673671199,
+      "recall": 0.9900218272528843,
+      "confusion": [
+        [
+          6076,
+          61
+        ],
+        [
+          32,
+          3175
+        ]
+      ]
+    },
+    {
+      "config": 8,
+      "label": "HOG + LBP + colour, HOG cell 6",
+      "features": [
+        "hog",
+        "lbp",
+        "colour"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog",
+          "lbp",
+          "colour"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 6,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 4,
+        "colour_grid": [
+          3,
+          6
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 3292,
+      "seconds": 249,
+      "accuracy": 0.9910102739726028,
+      "precision": 0.9797235023041475,
+      "recall": 0.9943872778297475,
+      "confusion": [
+        [
+          6071,
+          66
+        ],
+        [
+          18,
+          3189
+        ]
+      ]
+    },
+    {
+      "config": 9,
+      "label": "HOG + LBP + colour, HOG cell 12",
+      "features": [
+        "hog",
+        "lbp",
+        "colour"
+      ],
+      "kernel": "nystroem",
+      "C": 10,
+      "extractor": {
+        "features": [
+          "hog",
+          "lbp",
+          "colour"
+        ],
+        "size": [
+          64,
+          64
+        ],
+        "hog_cell": 12,
+        "hog_orientations": 9,
+        "lbp_points": 8,
+        "lbp_radius": 1,
+        "lbp_cell": 16,
+        "colour_bins": 4,
+        "colour_grid": [
+          3,
+          6
+        ]
+      },
+      "n_train": 64000,
+      "n_features": 952,
+      "seconds": 199,
+      "accuracy": 0.9912243150684932,
+      "precision": 0.9806213472777607,
+      "recall": 0.9940754599314,
+      "confusion": [
+        [
+          6074,
+          63
+        ],
+        [
+          19,
+          3188
+        ]
+      ]
+    }
+  ]
+}
