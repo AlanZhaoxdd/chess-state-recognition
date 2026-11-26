@@ -18,6 +18,12 @@ def _tiny(task: str):
     from chessrec.baselines import TinyImageClassifier
     return TinyImageClassifier.load(MODELS_DIR / f"tiny_{task}.joblib")
 
+def _cnn(task: str, variant: str = ""):
+    """CNN trained by scripts/train_cnn.py; variant matches its --variant option."""
+    from chessrec.cnn import CNNClassifier  # imports PyTorch
+    suffix = f"_{variant}" if variant else ""
+    return CNNClassifier.load(MODELS_DIR / f"cnn_{task}{suffix}.pt")
+
 
 LOCALISERS: dict[str, Callable] = {
     "oracle": lambda: None,
@@ -26,9 +32,15 @@ LOCALISERS: dict[str, Callable] = {
 OCCUPANCY_CLASSIFIERS: dict[str, Callable] = {
     "oracle": lambda: None,
     "tiny": lambda: _tiny("occupancy"),
+    "cnn": lambda: _cnn("occupancy"),
+    "cnn_scratch": lambda: _cnn("occupancy", "scratch"),
+    "cnn_noaug": lambda: _cnn("occupancy", "noaug"),
 }
 
 PIECE_CLASSIFIERS: dict[str, Callable] = {
     "oracle": lambda: None,
     "tiny": lambda: _tiny("pieces"),
+    "cnn": lambda: _cnn("pieces"),
+    "cnn_scratch": lambda: _cnn("pieces", "scratch"),
+    "cnn_noaug": lambda: _cnn("pieces", "noaug"),
 }
