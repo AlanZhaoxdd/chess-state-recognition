@@ -142,8 +142,8 @@ The report has to say which lecture techniques we use, so update this table when
 
 | Member | ECS ID | Main responsibility |
 |---|---|---|
-| | | Framework and integration |
+| Weixi Zhao | wz8g22 | Framework and integration |
 | Lingzhi Zhao | lz8g23 | A. Board localisation |
 | Zifan Yang | zy1d22 | B. Hand-crafted features + SVM |
-| | | C. CNN classifiers |
+| Joshua Broadhurst | jjb2g24 | C. CNN classifiers |
 | | | D. Experiments and report |
