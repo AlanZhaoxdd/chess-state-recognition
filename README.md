@@ -120,8 +120,9 @@ The report has to say which lecture techniques we use, so update this table when
 
 | Stage | Technique | Kind | Status |
 |---|---|---|---|
-| Board localisation | Gaussian filtering, Canny edges, Hough lines | Traditional CV | planned |
-| Board localisation | RANSAC, homography | Traditional CV | planned |
+| Board localisation | Gaussian filtering, Canny edges, Hough lines | Traditional CV | done (`localisation.py`) |
+| Board localisation | RANSAC, homography | Traditional CV | done (`localisation.py`) |
+| Board localisation | Agglomerative clustering of line directions, DBSCAN to merge duplicate lines | Self-study (not from lectures) | done (`localisation.py`) |
 | Square extraction | Perspective warp | Traditional CV | done (`geometry.py`) |
 | Occupancy / pieces | Tiny images + k-NN (baseline) | Feature extraction | done (`baselines.py`) |
 | Occupancy / pieces | HSV colour histograms on a grid of cells, gradient orientation histograms (HOG) | Feature extraction | done (`classical.py`) |
@@ -142,7 +143,7 @@ The report has to say which lecture techniques we use, so update this table when
 | Member | ECS ID | Main responsibility |
 |---|---|---|
 | | | Framework and integration |
-| | | A. Board localisation |
+| Lingzhi Zhao | lz8g23 | A. Board localisation |
 | Zifan Yang | zy1d22 | B. Hand-crafted features + SVM |
 | | | C. CNN classifiers |
 | | | D. Experiments and report |

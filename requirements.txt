@@ -6,7 +6,7 @@ pytest
 
 # Classical features + classifiers
 scikit-image
-scikit-learn
+scikit-learn==1.9.1   # pinned: saved SVM models only load with the same version
 joblib
 matplotlib
 
