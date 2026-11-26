@@ -19,8 +19,14 @@ def _tiny(task: str):
     return TinyImageClassifier.load(MODELS_DIR / f"tiny_{task}.joblib")
 
 
+def _hough_localiser():
+    from chessrec.localisation import ChessboardLocaliser
+    return ChessboardLocaliser()
+
+
 LOCALISERS: dict[str, Callable] = {
     "oracle": lambda: None,
+    "hough": _hough_localiser,
 }
 
 OCCUPANCY_CLASSIFIERS: dict[str, Callable] = {
